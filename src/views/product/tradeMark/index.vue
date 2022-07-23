@@ -23,18 +23,18 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" prop="prop">
-        <!-- <template slot-scope="{row,$idnex}"> -->
-        <el-button
-          type="warning"
-          icon="el-icon-edit"
-          size="mini"
-          @click="updateTradeMark"
-          >修改</el-button
-        >
-        <el-button type="danger" icon="el-icon-delete" size="mini"
-          >删除</el-button
-        >
-        <!-- </template> -->
+        <template slot-scope="{ row, $idnex }">
+          <el-button
+            type="warning"
+            icon="el-icon-edit"
+            size="mini"
+            @click="updateTradeMark(row)"
+            >修改</el-button
+          >
+          <el-button type="danger" icon="el-icon-delete" size="mini"
+            >删除</el-button
+          >
+        </template>
       </el-table-column>
     </el-table>
     <!-- 分页器 -->
@@ -50,18 +50,20 @@
       style="margin-top: 20px; textalign: center"
     ></el-pagination>
     <!-- 对话框 -->
-    <el-dialog title="添加品牌" :visible.sync="dialogFormVisible">
-      <el-form style="width: 80%" :model="tmForm">
-        <el-form-item label="品牌名称" label-width="100px">
+    <el-dialog
+      :title="tmForm.id ? '修改品牌' : '添加品牌'"
+      :visible.sync="dialogFormVisible"
+    >
+      <el-form style="width: 80%" :model="tmForm" :rules="rules" ref="ruleForm">
+        <el-form-item label="品牌名称" label-width="100px" prop="tmName">
           <el-input autocomplete="off" v-model="tmForm.tmName"></el-input>
         </el-form-item>
-        <el-form-item label="品牌LOGO" label-width="100px">
-
+        <el-form-item label="品牌LOGO" label-width="100px" prop="logoUrl">
           <el-upload
             class="avatar-uploader"
             action="/dev-api/admin/product/fileUpload"
             :show-file-list="false"
-            :on-success="handleAvatarSuccess" 
+            :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
             <img v-if="tmForm.logoUrl" :src="tmForm.logoUrl" class="avatar" />
@@ -96,10 +98,24 @@ export default {
       //对话框显示与隐藏
       dialogFormVisible: false,
       //收集品牌信息,内部属性不能瞎写，key已经固定
-      tmForm:{
-        tmName:'',
-        logoUrl:''
-      }
+      tmForm: {
+        tmName: "",
+        logoUrl: "",
+      },
+      //表单验证规则
+      rules: {
+        tmName: [
+          { required: true, message: "请输入品牌名称", trigger: "blur" }, //blur失焦
+          {
+            min: 2,
+            max: 10,
+            message: "长度在 2 到 10 个字符",
+            trigger: "change",
+          },
+        ],
+        //logo验证规则
+        logoUrl: [{ required: true, message: "请选择品牌图片" }],
+      },
     };
   },
   mounted() {
@@ -124,15 +140,17 @@ export default {
     //点击添加品牌
     showDialog() {
       this.dialogFormVisible = true;
-      this.tmForm={logoUrl:'',tmName:''}
+      this.tmForm = { logoUrl: "", tmName: "" };
     },
     //修改某一个品牌
-    updateTradeMark() {
+    updateTradeMark(row) {
+      // row为当前品牌展示信息
       this.dialogFormVisible = true;
+      this.tmForm = { ...row };
     },
     //上传图片相关回调
     handleAvatarSuccess(res, file) {
-      this.tmForm.logoUrl=res.data
+      this.tmForm.logoUrl = res.data;
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
@@ -147,15 +165,28 @@ export default {
       return isJPG && isLt2M;
     },
     //添加按钮，添加品牌，或修改品牌
-    async addOrUpdateTradeMark(){
-      this.dialogFormVisible=false
-      const result=await this.$API.tradeMark.reqAddOrUpdateTradeMark(this.tmForm)
-      console.log('添加或修改品牌',result);
-      if(result.code==200){
-        this.$message(this.tmForm.id?'修改品牌成功':'添加品牌成功')
-        this.getPageList()
-      }
-    }
+    addOrUpdateTradeMark() {
+      this.$refs.ruleForm.validate(async (success) => {
+        if (success) {
+          this.dialogFormVisible = false;
+          const result = await this.$API.tradeMark.reqAddOrUpdateTradeMark(
+            this.tmForm
+          );
+          console.log("添加或修改品牌", result);
+          if (result.code == 200) {
+            this.$message({
+              type: "success",
+              message: this.tmForm.id ? "修改品牌成功" : "添加品牌成功",
+            });
+            //修改品牌后应该留在当前页
+            this.getPageList(this.tmForm.id ? this.page : 1);
+          }else{
+            console.log('error submit!');
+            return false
+          }
+        }
+      });
+    },
   },
 };
 </script>
