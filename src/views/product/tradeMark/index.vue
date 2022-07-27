@@ -23,7 +23,7 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" prop="prop">
-        <template slot-scope="{ row, $idnex }">
+        <template slot-scope="{ row, $index }">
           <el-button
             type="warning"
             icon="el-icon-edit"
@@ -31,7 +31,11 @@
             @click="updateTradeMark(row)"
             >修改</el-button
           >
-          <el-button type="danger" icon="el-icon-delete" size="mini"
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            @click="deleteTradeMark(row)"
             >删除</el-button
           >
         </template>
@@ -180,12 +184,38 @@ export default {
             });
             //修改品牌后应该留在当前页
             this.getPageList(this.tmForm.id ? this.page : 1);
-          }else{
-            console.log('error submit!');
-            return false
+          } else {
+            console.log("error submit!");
+            return false;
           }
         }
       });
+    },
+    //删除
+    deleteTradeMark(row) {
+      // 弹框组件
+      this.$confirm(`你确定删除${row.tmName}`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          let result = await this.$API.tradeMark.reqDeleteTradeMark(row.id);
+          console.log('删除trademark',result);
+          if (result.code == 200) {
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            this.getPageList(this.list.length>1?this.page:this.page-1)
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
   },
 };
