@@ -183,7 +183,7 @@ $light_gray:#eee;
   min-height: 100%;
   width: 100%;
   background: url(~@/assets/wallpa.png);
-  background-size: 100% 100%;
+  background-size: cover;
   overflow: hidden;
 
   .login-form {

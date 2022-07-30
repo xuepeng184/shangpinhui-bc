@@ -39,7 +39,12 @@ import API from '@/api'
 //三级联动组件
 import CategorySelect from "@/components/CategorySelect"
 Vue.component(CategorySelect.name,CategorySelect)
+//hintButton组件
+import HintButton from "@/components/HintButton"
+Vue.component(HintButton.name,HintButton)
+
 Vue.prototype.$API=API
+
 new Vue({
   el: '#app',
   router,

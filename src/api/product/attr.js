@@ -34,11 +34,13 @@ export const reqAttrList=(c1Id,c2Id,c3Id)=>{
   })
 }
 
-//添加属性与属性值得接口
-export const reqAddAttr=(data)=>{
+//添加属性与属性值的接口
+export const reqAddOrUpdateAttr=(data)=>{
   return request({
     url:'/admin/product/saveAttrInfo',
     data,
     method:'post'
   })
 }
+
+

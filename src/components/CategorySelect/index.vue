@@ -6,6 +6,7 @@
           placeholder="请选择"
           v-model="cForm.category1Id"
           @change="handler1"
+          :disabled="show"
         >
           <el-option
             :label="c1.name"
@@ -20,6 +21,7 @@
           placeholder="请选择"
           v-model="cForm.category2Id"
           @change="handler2"
+          :disabled="show"
         >
           <el-option
             :label="c2.name"
@@ -34,6 +36,7 @@
           placeholder="请选择"
           v-model="cForm.category3Id"
           @change="handler3"
+          :disabled="show"
         >
           <el-option
             :label="c3.name"
@@ -50,6 +53,7 @@
 <script>
 export default {
   name: "CategorySelect",
+  props: ["show"],
   data() {
     return {
       //一级分类的数组
@@ -85,7 +89,10 @@ export default {
       this.list3 = [];
       this.cForm.category2Id = "";
       this.cForm.category3Id = "";
-      this.$emit("getCategoryId", {categoryId:this.cForm.category1Id,level:1});
+      this.$emit("getCategoryId", {
+        categoryId: this.cForm.category1Id,
+        level: 1,
+      });
       let result = await this.$API.attr.reqCategory2List(
         this.cForm.category1Id
       );
@@ -95,9 +102,12 @@ export default {
       }
     },
     async handler2() {
-      this.lsit3 = [];
+      this.list3 = [];
       this.cForm.category3Id = "";
-      this.$emit("getCategoryId", {categoryId:this.cForm.category2Id,level:2});
+      this.$emit("getCategoryId", {
+        categoryId: this.cForm.category2Id,
+        level: 2,
+      });
       let result = await this.$API.attr.reqCategory3List(
         this.cForm.category2Id
       );
@@ -108,7 +118,10 @@ export default {
     },
 
     handler3() {
-      this.$emit("getCategoryId", {categoryId:this.cForm.category3Id,level:3});
+      this.$emit("getCategoryId", {
+        categoryId: this.cForm.category3Id,
+        level: 3,
+      });
     },
   },
 };
